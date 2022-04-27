@@ -1,10 +1,13 @@
 const router = require('express').Router();
-const { User } = require('../../models');
+
+// require the User and Post from the models folder to use the tables collumns 
+const { User, Post } = require('../../models');
 
 // GET /api/users
 router.get('/', (req, res) => {  // here we will send them everything from the database, only the password wont be added this endpoint
   // Access our User model and run .findAll() method)
   User.findAll({
+    // here we will get all the data, expect the password , but even the password is excluded we still need to hash it 
     attributes: { exclude: ['password'] }
   })
     .then(dbUserData => res.json(dbUserData))
@@ -15,16 +18,22 @@ router.get('/', (req, res) => {  // here we will send them everything from the d
 });
 
 
-
-
 // GET /api/users/1
 router.get('/:id', (req, res) => {
   User.findOne({
+    // here we will get one collumn in the user table, expect the password row 
     attributes: { exclude: ['password'] },
     where: {
       id: req.params.id
-    }
+    },
+    include: [
+      {
+        model: Post,
+        attributes: ['id', 'title', 'post_url', 'created_at']
+      }
+    ]
   })
+    //if the user is getting the wrong id, then it will give them a 404 error, user not found  
     .then(dbUserData => {
       if (!dbUserData) {
         res.status(404).json({ message: 'No user found with this id' });
@@ -40,10 +49,9 @@ router.get('/:id', (req, res) => {
 
 
 
-
 // POST /api/users
 router.post('/', (req, res) => {
-  // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
+  // to create something, the body req should match the table collumns 
   User.create({
     username: req.body.username,
     email: req.body.email,

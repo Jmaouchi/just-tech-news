@@ -5,6 +5,7 @@ const sequelize = require('../config/connection');
 // create our User model. this is the same then doing class User {then inside we will have a constructor ..} in OOP 
 class User extends Model {
     // set up method to run on instance data (per user) to check password
+    // this to check the password if a user choose to update it 
     checkPassword(loginPw) {
       return bcrypt.compareSync(loginPw, this.password);
     }
@@ -65,7 +66,7 @@ User.init(
     sequelize,// this will connect the server to the db using sequelize 
     timestamps: false, 
     freezeTableName: true, // if not this will add an s at the end of the table name/ dont change anything and freez the table
-    underscored: true,
+    underscored: true, //In Sequelize, columns are camelcase by default.
     modelName: 'user' // table name 
   }
 );

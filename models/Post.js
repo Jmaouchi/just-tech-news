@@ -1,7 +1,6 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
 
-
 // create our Post model
 class Post extends Model {}
 
@@ -28,7 +27,7 @@ Post.init(
         isURL: true
       }
     },
-    // foreign key
+    // foreign key, and this wont work if the post.route wont have the include mehtode insude the get..
     user_id: {
       type: DataTypes.INTEGER,
       references: {
