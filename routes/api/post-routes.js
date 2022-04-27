@@ -1,49 +1,53 @@
 const router = require('express').Router();
-const { Post, User } = require('../../models');
-const { route } = require('./user-routes');
+const sequelize = require('../../config/connection');
+const { Post, User, Vote } = require('../../models');
 
-
-// get all users // and remember that Post is the name of our table 
+// get all users
 router.get('/', (req, res) => {
+  console.log('======================');
+  // find all the posts that are in the table, ( the attr that will be logged are id, post_url, title, created_at), 
+  // then user the sequelize.literal method to add all the votes that that post has. (select count(*)), and name that collumn vote_count
+  // then order them by what time they been created, and include the username from the model table, 
+  // with the include method
   Post.findAll({
-    // Query configuration
-    attributes: ['id', 'post_url', 'title', 'created_at'],
-    //this will order the data by time while displaying it to the user, (the last post will be displayed first)
-    order: [['created_at', 'DESC']], 
-    // this will work cause in out post modul we added a foreign key to be able to inhirt from the user modul while id = post_id 
-    include: [  // this include is the same as join with sql ( left join, inner join ...)
+    attributes: [
+      'id',
+      'post_url',
+      'title',
+      'created_at',
+      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+    ],
+    order: [['created_at', 'DESC']],
+    include: [
       {
         model: User,
         attributes: ['username']
       }
     ]
-//     INSERT INTO post (title, post_url, user_id, created_at, updated_at)
-// VALUES ("Taskmaster goes public!", "https://taskmaster/press", 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
   })
-  .then(dbPostData => res.json(dbPostData))
-  .catch(err => {
-    console.log(err);
-    res.status(500).json(err);
-  });
-})
+    .then(dbPostData => res.json(dbPostData))
+    .catch(err => {
+      console.log(err);
+      res.status(500).json(err);
+    });
+});
 
 
-
-// get a single post in  to the Post table
+// get a single post by its ID, WHERE  the user requested ID is = post ID
+// with including all the collumns that are in the attributes 
+// the include the username from the user table
 router.get('/:id', (req, res) => {
-  // in the post table finde one column where the req.params.id is the same than the id of that collumn
-  // then give us the id, post_url, title, created_at and the iclude the username inside the user table, if the id of 
-  // the collumn in the post table is equal to the id in the user table, then send back the response as json 
-                                                       //MORE INFO//
-  //Notice that there are only differences, namely the use of the findOne method and the use of the req.params to retrieve 
-  //the id property from the route. We used the where property to set the value of the id using req.params.id. We are requesting 
-  //the same attributes, including the username which requires a reference to the User model using the include property.
-
   Post.findOne({
     where: {
       id: req.params.id
     },
-    attributes: ['id', 'post_url', 'title', 'created_at'],
+    attributes: [
+      'id',
+      'post_url',
+      'title',
+      'created_at',
+      [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+    ],
     include: [
       {
         model: User,
@@ -63,11 +67,10 @@ router.get('/:id', (req, res) => {
       res.status(500).json(err);
     });
 });
-
-
-
-// post a new post to the Post table 
+// post to the post table, with calling the create methode. make sure you add all the collumns, that exists in the post table,
+// then send back a response to include the added post 
 router.post('/', (req, res) => {
+  // expects {title: 'Taskmaster goes public!', post_url: 'https://taskmaster.com/press', user_id: 1}
   Post.create({
     title: req.body.title,
     post_url: req.body.post_url,
@@ -80,7 +83,18 @@ router.post('/', (req, res) => {
     });
 });
 
-// Update a post
+
+// 
+router.put('/upvote', (req, res) => {
+  // custom static method created in models/Post.js
+  Post.upvote(req.body, { Vote })
+    .then(updatedPostData => res.json(updatedPostData))
+    .catch(err => {
+      console.log(err);
+      res.status(400).json(err);
+    });
+});
+
 router.put('/:id', (req, res) => {
   Post.update(
     {
@@ -105,9 +119,6 @@ router.put('/:id', (req, res) => {
     });
 });
 
-
-
-//delete a post
 router.delete('/:id', (req, res) => {
   Post.destroy({
     where: {
