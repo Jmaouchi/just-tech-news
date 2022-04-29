@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { User, Post, Vote } = require('../../models');
+const { Post, User, Vote, Comment } = require("../../models");
 
 // get all users
 router.get('/', (req, res) => {
@@ -13,25 +13,34 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', (req, res) => { 
   User.findOne({
     attributes: { exclude: ['password'] },
-    where: {
-      id: req.params.id
-    },
-    include: [
-      {
-        model: Post,
-        attributes: ['id', 'title', 'post_url', 'created_at']
+      where: {
+        id: req.params.id
       },
-      {
-        model: Post,
-        attributes: ['title'],
-        through: Vote,
-        as: 'voted_posts'
-      }
-    ]
-  })
+      include: [
+        { //include the the id, title, post_url and created_at from the post table
+          model: Post, 
+          attributes: ['id', 'title', 'post_url', 'created_at']
+        },
+        // include the Comment model here:
+        { //include the the id, comment_text and created_at from the Comment table
+          model: Comment,
+          attributes: ['id', 'comment_text', 'created_at'],
+          include: { // include means join 
+            model: Post,
+            attributes: ['title']
+          }
+        },
+        { 
+          model: Post,
+          attributes: ['title'],
+          through: Vote,
+          as: 'voted_posts'
+        }
+      ]
+    })
     .then(dbUserData => {
       if (!dbUserData) {
         res.status(404).json({ message: 'No user found with this id' });
@@ -46,7 +55,7 @@ router.get('/:id', (req, res) => {
 });
 
 router.post('/', (req, res) => {
-  // expects {username: 'Lernantino', email: 'lernantino@gmail.com', password: 'password1234'}
+  // in a post its always a create method that we need to use 
   User.create({
     username: req.body.username,
     email: req.body.email,
