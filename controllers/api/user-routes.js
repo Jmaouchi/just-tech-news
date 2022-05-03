@@ -79,7 +79,16 @@ router.post('/', (req, res) => {
     email: req.body.email,
     password: req.body.password
   })
-    .then(dbUserData => res.json(dbUserData))
+  .then(dbUserData => {
+    // method will initiate the creation of the session and then run the callback function once complete.
+    req.session.save(() => {
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = true;
+  
+      res.json(dbUserData);
+    });
+    })
     .catch(err => {
       console.log(err);
       res.status(500).json(err);
@@ -110,11 +119,33 @@ router.post('/login', (req, res) => {
       res.status(400).json({ message: 'Incorrect password!' });
       return;
     }
+    // This gives our server easy access to the user's user_id, username, and a Boolean describing whether or not the user is logged in
+    // we always need to create our sessoin before we send a response back 
+    req.session.save(() => {
+      // declare session variables
+      req.session.user_id = dbUserData.id;
+      req.session.username = dbUserData.username;
+      req.session.loggedIn = false;
 
     res.json({ user: dbUserData, message: 'You are now logged in!' });
+    });
   });
-});
+})
 
+// destroy the session to logout from the page
+router.post('/logout', (req, res) => {
+
+  if (req.session.loggedIn) {
+    req.session.destroy(() => {
+      // the 204 response means that the session has successfully been destroyed.
+      res.status(204).end();
+    });
+  }
+  else {
+    res.status(404).end();
+  }
+
+});
 
 // this will update data in the database, for example a user want to update something 
 router.put('/:id', (req, res) => {
