@@ -50,7 +50,7 @@ Post.init(
         isURL: true
       }
     },
-    // foreign key, and this wont work if the post.route wont have the include mehtode insude the get..
+    // foreign key, and this wont work if the post.route wont have the include mehtode inside the get..
     user_id: { // we will name this user_id, and after we do add it in the post request it will check in the user table if its equal to the id,
       // if so then it will include whatever we want from that table.
       type: DataTypes.INTEGER,

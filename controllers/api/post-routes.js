@@ -16,6 +16,7 @@ router.get('/', (req, res) => {
       'post_url',
       'title',
       'created_at',
+      // and select * from the vote table where the post id is equal to the vote post_id and set that on a variable called vote_count
       [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
     ],
     include: [
@@ -23,12 +24,15 @@ router.get('/', (req, res) => {
       {
         model: Comment,
         attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+        // since there is a foregein key between the comment and post tables, we can include the user username when to include the user that added 
+        // that comment 
         include: {
           model: User,
           attributes: ['username']
         }
       },
       {
+        // and include the user that has the post 
         model: User,
         attributes: ['username']
       }
