@@ -4,6 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
+    "test":"jest",
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
@@ -19,6 +20,7 @@
   },
   "homepage": "https://github.com/Jmaouchi/just-tech-news#readme",
   "devDependencies": {
+    "jest": "^28.0.3",
     "nodemon": "^2.0.15"
   },
   "dependencies": {
