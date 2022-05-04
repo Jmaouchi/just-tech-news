@@ -3,7 +3,7 @@ const { Post, User, Vote, Comment } = require("../../models");
 
 // get all users
 // EXMPL: this will happen if a user try to click on a button to get some data displayed, the frontEnd team will specify what they want to happen 
-// while clicking on that button  
+// while clicking on that button   
 router.get('/', (req, res) => {
   // this will get all the data from the user table and it will exclude the password for us. 
   // but the password is still visible in the database, so we need to hash it 
@@ -72,8 +72,8 @@ router.get('/:id', (req, res) => {
 
 // this post is to create a new user // for example someone trying to reate an account need to fill out a form. the data will be sent to the user table
 // then send the data back as json 
+// this api will be used to create an account 
 router.post('/', (req, res) => {
-  // in a post its always a create method that we need to use 
   User.create({
     username: req.body.username,
     email: req.body.email,
@@ -81,6 +81,7 @@ router.post('/', (req, res) => {
   })
   .then(dbUserData => {
     // method will initiate the creation of the session and then run the callback function once complete.
+    // this will add the session to the cookie in you client side, then in the fetch post method if the response ok, they will log you in automatically  :/
     req.session.save(() => {
       req.session.user_id = dbUserData.id;
       req.session.username = dbUserData.username;
@@ -99,6 +100,7 @@ router.post('/', (req, res) => {
 
 // this when a user try to access to his account, he will try to  write his user_name and password to see if he get an account, if yes 
 // render them whatever, html or a json data to the front_end team 
+// this API route will be used to send the login data to the User table
 router.post('/login', (req, res) => {
   User.findOne({
     where: {
@@ -125,7 +127,8 @@ router.post('/login', (req, res) => {
       // declare session variables
       req.session.user_id = dbUserData.id;
       req.session.username = dbUserData.username;
-      req.session.loggedIn = false;
+      // this will set in you client side as a cookie and it will check if you logged in or not 
+      req.session.loggedIn = true;
 
     res.json({ user: dbUserData, message: 'You are now logged in!' });
     });
