@@ -1,6 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
-
 // create our Post model
 class Post extends Model {
   static upvote(body, models) {
@@ -17,32 +16,36 @@ class Post extends Model {
           'post_url',
           'title',
           'created_at',
-          [
-            sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'),
-            'vote_count'
-          ]
+          [sequelize.literal('(SELECT COUNT(*) FROM vote WHERE post.id = vote.post_id)'), 'vote_count']
+        ],
+        include: [
+          {
+            model: models.Comment,
+            attributes: ['id', 'comment_text', 'post_id', 'user_id', 'created_at'],
+            include: {
+              model: models.User,
+              attributes: ['username']
+            }
+          }
         ]
       });
     });
   }
 }
 
-// create fields/columns for Post model // defined the post schema
+// create fields/columns for Post model
 Post.init(
-  { // after we created the modul we need to create the collumns 
-    //id collumn
+  {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
-    // title column 
     title: {
       type: DataTypes.STRING,
       allowNull: false
     },
-    // post_url collumn 
     post_url: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -50,9 +53,7 @@ Post.init(
         isURL: true
       }
     },
-    // foreign key, and this wont work if the post.route wont have the include mehtode insude the get..
-    user_id: { // we will name this user_id, and after we do add it in the post request it will check in the user table if its equal to the id,
-      // if so then it will include whatever we want from that table.
+    user_id: {
       type: DataTypes.INTEGER,
       references: {
         model: 'user',
@@ -60,14 +61,12 @@ Post.init(
       }
     }
   },
-  { // configure the metadata, including the naming conventions.
+  {
     sequelize,
     freezeTableName: true,
     underscored: true,
     modelName: 'post'
   }
 );
-
-
 
 module.exports = Post;
