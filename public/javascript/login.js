@@ -20,7 +20,7 @@ async function loginFormHandler(event) {
     });
 
     if (response.ok) {
-      document.location.replace('/');
+      document.location.replace('/dashboard')
     } else {
       alert(response.statusText);
     }
@@ -51,12 +51,14 @@ async function signupFormHandler(event) {
 
     if (response.ok) {
       // after the account is been created, reffer them to another page 
-      document.location.replace('/');
+      document.location.replace('/dashboard')
     } else {
       alert(response.statusText);
     }
   }
 }
+
+
 
 document.querySelector('.login-form').addEventListener('submit', loginFormHandler);
 

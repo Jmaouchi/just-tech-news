@@ -14,12 +14,9 @@
 </form>
 {{/if}}
 
-<div class="comments">
-  {{!-- to add a partial you need to specify the file name that you are getting the code from, and the data you want to get the comments from --}}
-  {{> comments post.comments}}
-</div>
+{{> comments post.comments}}
 
 {{#if loggedIn}}
-<script src="/javascript/comment.js"></script>
+<script src="/javascript/comment-post.js"></script>
 <script src="/javascript/upvote.js"></script>
 {{/if}}
