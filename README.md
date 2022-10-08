@@ -5,12 +5,6 @@ Web application for users to post and view tech related articles from anywhere o
 
 
 # Table of Contents
-Installation
-Usage
-Contributors
-Tests
-Questions
-License
 * [Instalation](#header.instal)
 * [Usage](header.usage)
 * [License](#header.license)
