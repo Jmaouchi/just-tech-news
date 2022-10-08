@@ -17,6 +17,7 @@ License
 * [Contribution](#contributors)
 
 
+
 # Installation
 Run npm i to install all the dependencies in package.json, then run npm start to run locally @ localhost:3002.
 
