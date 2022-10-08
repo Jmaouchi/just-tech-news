@@ -1,7 +1,6 @@
 # Tech News
 
-
-# Description
+# Summary
 Web application for users to post and view tech related articles from anywhere on the web!
 
 
@@ -17,7 +16,6 @@ License
 * [License](#header.license)
 * [Link](#link)
 * [Contribution](#contributors)
-
 
 
 # Installation
